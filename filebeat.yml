@@ -1,0 +1,62 @@
+filebeat.inputs:
+  - type: filestream
+    id: tracking-json-logs
+    paths:
+      - /usr/share/filebeat/logs/tracking.json.log
+      - /usr/share/filebeat/logs/tracking.*.json.log
+    fields:
+      app: tracking
+      env: dev
+    fields_under_root: true
+  # NEEDED for Brave tracer JSON strings
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+
+# Processors - data transformation pipeline
+# ✅ SIMPLIFIED PROCESSING - No JSON decoding needed!
+#processors:
+#  - rename:
+#      fields:
+#        - from: "level"          # Rename to ECS standard
+#          to: "log.level"
+#        - from: "thread_name"    # Rename to ECS standard
+#          to: "log.thread"
+#        - from: "logger_name"    # Rename to ECS standard
+#          to: "log.logger"
+#      ignore_missing: true    # ← CRITICAL: Don't fail if field missing
+#      fail_on_error: false    # ← Don't fail the entire processor
+
+#  - add_fields:
+#      target: ""  # Add to root level
+#      fields:
+#        infrastructure: "docker"
+#        team: "apd-team"
+#        log_type: "application"
+
+# No processors - keep Filebeat lightweight
+processors: []
+
+# Output to Logstash
+output.logstash:
+  hosts: ["logstash:5044"]
+  compression_level: 3
+
+# Optional: Enable for debugging
+#output.console:
+#  enabled: true    # Change to true to see logs in console
+#  pretty: true
+
+# Filebeat monitoring
+#logging:
+#  level: info           # Filebeat's log level
+#  to_files: true        # Write logs to file
+#  files:
+#    path: /var/log/filebeat  # Where to write
+#    name: filebeat.log       # Filename
+#    keepfiles: 7             # Keep 7 days of logs
+
+
+logging:
+  level: warning  # Reduce noise in production

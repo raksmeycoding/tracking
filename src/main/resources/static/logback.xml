@@ -1,0 +1,159 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<configuration>-->
+<!--    &lt;!&ndash; ========== PROPERTIES ========== &ndash;&gt;-->
+<!--    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} | %-5level | %X{traceId:-} | %X{spanId:-} | [%thread] | %logger{40} | %msg%n"/>-->
+<!--    <property name="JSON_PATTERN" value='{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}", "level":"%level", "traceId":"%X{traceId:-}", "spanId":"%X{spanId:-}", "thread":"%thread", "logger":"%logger{40}", "message":"%message", "exception":"%ex"}'/>-->
+<!--    <property name="LOG_DIR" value="logs"/>-->
+<!--    <property name="APP_NAME" value="raksmey-dev-tracking"/>-->
+
+<!--    &lt;!&ndash; ========== CONSOLE APPENDER ========== &ndash;&gt;-->
+<!--    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>${LOG_PATTERN}</pattern>-->
+<!--            <charset>UTF-8</charset>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; ========== FILE APPENDER ========== &ndash;&gt;-->
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>${LOG_DIR}/${APP_NAME}.log</file>-->
+<!--        <encoder>-->
+<!--            <pattern>${LOG_PATTERN}</pattern>-->
+<!--            <charset>UTF-8</charset>-->
+<!--        </encoder>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
+<!--            <maxFileSize>100MB</maxFileSize>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--            <totalSizeCap>3GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; ========== JSON APPENDER (for production) ========== &ndash;&gt;-->
+<!--    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>${LOG_DIR}/${APP_NAME}-json.log</file>-->
+<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+<!--            <includeContext>true</includeContext>-->
+<!--            <customFields>{"app":"${APP_NAME}"}</customFields>-->
+<!--            <fieldNames>-->
+<!--                <timestamp>timestamp</timestamp>-->
+<!--                <version>[ignore]</version>-->
+<!--                <message>message</message>-->
+<!--                <logger>logger</logger>-->
+<!--                <thread>thread</thread>-->
+<!--                <level>level</level>-->
+<!--                <levelValue>[ignore]</levelValue>-->
+<!--                <caller>[ignore]</caller>-->
+<!--                <stackTrace>stack_trace</stackTrace>-->
+<!--                <traceId>traceId</traceId>-->
+<!--                <spanId>spanId</spanId>-->
+<!--            </fieldNames>-->
+<!--        </encoder>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>${LOG_DIR}/${APP_NAME}-json.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
+<!--            <maxFileSize>100MB</maxFileSize>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--            <totalSizeCap>3GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; ========== ERROR FILE APPENDER ========== &ndash;&gt;-->
+<!--    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>${LOG_DIR}/${APP_NAME}-error.log</file>-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>ERROR</level>-->
+<!--        </filter>-->
+<!--        <encoder>-->
+<!--            <pattern>${LOG_PATTERN}</pattern>-->
+<!--            <charset>UTF-8</charset>-->
+<!--        </encoder>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>${LOG_DIR}/${APP_NAME}-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
+<!--            <maxFileSize>50MB</maxFileSize>-->
+<!--            <maxHistory>60</maxHistory>-->
+<!--            <totalSizeCap>1GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; ========== ASYNC APPENDERS (for better performance) ========== &ndash;&gt;-->
+<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>1000</queueSize>-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+<!--        <includeCallerData>false</includeCallerData>-->
+<!--        <appender-ref ref="FILE" />-->
+<!--    </appender>-->
+
+<!--    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>1000</queueSize>-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+<!--        <includeCallerData>false</includeCallerData>-->
+<!--        <appender-ref ref="JSON_FILE" />-->
+<!--    </appender>-->
+
+<!--    <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>500</queueSize>-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+<!--        <includeCallerData>false</includeCallerData>-->
+<!--        <appender-ref ref="ERROR_FILE" />-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; ========== LOGGERS ========== &ndash;&gt;-->
+
+<!--    &lt;!&ndash; Your application packages (debug level) &ndash;&gt;-->
+<!--    <logger name="com.raksmey.dev.tracking" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
+<!--        <appender-ref ref="ASYNC_JSON"/>-->
+<!--        <appender-ref ref="ASYNC_ERROR"/>-->
+<!--    </logger>-->
+
+<!--    &lt;!&ndash; Spring Framework (info level) &ndash;&gt;-->
+<!--    <logger name="org.springframework" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
+<!--    </logger>-->
+
+<!--    &lt;!&ndash; Hibernate/SQL (warn level to reduce noise) &ndash;&gt;-->
+<!--    <logger name="org.hibernate" level="WARN" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
+<!--    </logger>-->
+
+<!--    &lt;!&ndash; Sleuth tracing (debug if needed) &ndash;&gt;-->
+<!--    <logger name="org.springframework.cloud.sleuth" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
+<!--    </logger>-->
+
+<!--    &lt;!&ndash; ========== ROOT LOGGER ========== &ndash;&gt;-->
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
+<!--        <appender-ref ref="ASYNC_JSON"/>-->
+<!--        <appender-ref ref="ASYNC_ERROR"/>-->
+<!--    </root>-->
+
+<!--    &lt;!&ndash; ========== PROFILE-BASED CONFIGURATION ========== &ndash;&gt;-->
+<!--    <springProfile name="dev">-->
+<!--        <root level="INFO">-->
+<!--            <appender-ref ref="CONSOLE"/>-->
+<!--        </root>-->
+<!--        <logger name="com.raksmey.dev.tracking" level="DEBUG">-->
+<!--            <appender-ref ref="CONSOLE"/>-->
+<!--        </logger>-->
+<!--    </springProfile>-->
+
+<!--    <springProfile name="prod">-->
+<!--        <root level="INFO">-->
+<!--            <appender-ref ref="ASYNC_FILE"/>-->
+<!--            <appender-ref ref="ASYNC_JSON"/>-->
+<!--            <appender-ref ref="ASYNC_ERROR"/>-->
+<!--        </root>-->
+<!--        <logger name="com.raksmey.dev.tracking" level="INFO">-->
+<!--            <appender-ref ref="ASYNC_FILE"/>-->
+<!--            <appender-ref ref="ASYNC_JSON"/>-->
+<!--            <appender-ref ref="ASYNC_ERROR"/>-->
+<!--        </logger>-->
+<!--    </springProfile>-->
+
+<!--</configuration>-->

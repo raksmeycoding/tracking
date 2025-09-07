@@ -1,0 +1,100 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - cluster.name=kernel-logs
+      - node.name=node-1
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g  # ← Limit Java heap to 2GB
+      - bootstrap.memory_lock=true  # ← Prevent swapping
+    deploy:
+      resources:
+        limits:
+          memory: 4G # ← Total container limit
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+    ports:
+      - "9200:9200"
+    volumes:
+      - elk-data:/usr/share/elasticsearch/data
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.0
+    container_name: logstash
+    environment:
+      - LS_JAVA_OPTS=-Xmx512m -Xms512m  # ← Limit Java heap
+    deploy:
+      resources:
+        limits:
+          memory: 1G  # ← Down from 1.47GB
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    container_name: kibana
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=512  # ← CRITICAL: Limit Node.js memory
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200 #Optional (it has default)
+    deploy:
+      resources:
+        limits:
+          memory: 768M  # ← Limit container memory
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.0
+    container_name: filebeat
+    deploy:
+      resources:
+        limits:
+          memory: 100M  # ← Slight buffer
+          cpus: '0.25'
+        reservations:
+          memory: 50M
+          cpus: '0.1'
+    user: root
+    restart: unless-stopped
+    entrypoint: |
+      sh -c 'chmod go-w /usr/share/filebeat/filebeat.yml && 
+             exec filebeat -e'
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/usr/share/filebeat/logs:ro  # Read-only access
+    depends_on:
+      - logstash
+    networks:
+      - elk
+
+
+volumes:
+  elk-data:
+
+networks:
+  elk:
+    external: true

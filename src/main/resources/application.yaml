@@ -1,0 +1,27 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: tracking
+  profiles:
+    active: dev
+api:
+  version: v1
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus, trace
+  tracing:
+#    propagation:
+#      type: B3 # Or W3C for traceparent
+    sampling:
+      probability: 1.0 # 100% for dev, 0.1 for production
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9412/api/v2/spans
+
+
+

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - '9411:9411'
+    environment:
+      - STORAGE_TYPE=mem # In-memory storage (volatile)
+      - JAVA_OPTS=-Xms512m -Xmx512m
+    networks:
+      - tracing-network
+
+networks:
+  tracing-network:
+    driver: bridge
